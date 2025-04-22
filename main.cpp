@@ -1,5 +1,8 @@
 // Include the raylib library
 #include <raylib.h>
+#include <iostream>
+#include "main.hpp"
+#include "winScreen.hpp"
 
 // Global variables that store the player and cpu score
 int playerScore = 0;
@@ -41,6 +44,10 @@ class Ball {
         } else if(x - radius <= 0) {
             playerScore++;
             resetBall();
+        }
+
+        if(cpuScore == 10 || playerScore == 10) {
+            Winner();
         }
     }
 
@@ -125,6 +132,10 @@ void RunGame() {
 
     // Load the music and sfx
     Music bgMusic = LoadMusicStream("Audio/pongTheme.mp3");
+    Sound collideSound = LoadSound("Audio/collideSound.ogg");
+
+    // Set up the volume
+    SetMusicVolume(bgMusic, 0.3f);
 
     // Play the music
     PlayMusicStream(bgMusic);
@@ -174,9 +185,11 @@ void RunGame() {
         // Handle the ball with the paddle and the cpu paddle collision
         if(CheckCollisionCircleRec(Vector2{ball.x, ball.y}, ball.radius, Rectangle{paddle.x, paddle.y, paddle.width, paddle.height})) {
             ball.speedX *= -1;
+            PlaySound(collideSound);
         }
         if(CheckCollisionCircleRec(Vector2{ball.x, ball.y}, ball.radius, Rectangle{cpu.x, cpu.y, cpu.width, cpu.height})) {
             ball.speedX *= -1;
+            PlaySound(collideSound);
         }
 
         // Clear the BG with the color added
@@ -200,6 +213,7 @@ void RunGame() {
     }
         // Clean up the audio resources
         UnloadMusicStream(bgMusic);
+        UnloadSound(collideSound);
 
         // Stop audio
         CloseAudioDevice();
